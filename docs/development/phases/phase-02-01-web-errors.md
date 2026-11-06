@@ -145,3 +145,28 @@ PRレビューとWebブラウザ／iPhone確認。ブラウザ接続可能な環
 - 開発サーバーへのHTTPリクエストは200で成功し、返却HTMLに「今日も、いい一日に。」が含まれることを確認。ブラウザ描画や操作の検証とは区別する。
 - `git diff --exit-code origin/main -- src/app src/styles/home.ts src/components/app-tabs.tsx package.json package-lock.json` 成功。ホーム・ネイティブタブ・依存は変更なし。
 - 作業差分はWebタブ、Web hook、本記録の3ファイルのみ。
+
+## PR #3 マージ・後処理（2026-11-06）
+- PR: [#3 fix: resolve web TypeScript and ESLint errors](https://github.com/iwasaki-hub/LittleDiary/pull/3)
+- マージ方法: Squash and merge（ユーザー承認済み）。
+- レビュー対象／最終head: `0dcb96731a2aab44e25104bd4dc35a0cd47d8e56`。マージAPIにもexpected_head_shaとして指定。
+- マージコミット: `c9aa90dce6705763fa8669c4d5a9ecba1c0ba31a`
+- マージ日時: 2026-11-06 23:03:29 JST（GitHub: 2026-11-06T14:03:29Z）。GitHubでclosed / merged=trueを確認。
+- マージ前確認: Open、競合なし、mergeStateStatus=CLEAN。変更はレビュー対象のWebタブ・Web hook・本記録の3ファイルのみ。未コミット差分なし。
+- チェック／保護: statusCheckRollupは空。mainの保護APIはBranch not protected、適用ブランチルールAPIは空配列。必須チェックや保護の迂回は実施していない。
+- マージ前の再検証: `npx.cmd tsc --noEmit`、PowerShell `$env:CI='1'; npx.cmd expo lint` とも終了コード0。
+- main同期: クリーンな状態から `git switch main`、`git pull --ff-only origin main` に成功。mainは上記マージSHA。
+- 同期後の再検証: 同じTypeScript・Lintコマンドとも終了コード0。
+- 作業ブランチの安全性: `git diff --exit-code fix/web-types-and-lint main` は終了コード0、内容は完全一致。Squashのため履歴上の祖先判定だけではなく、Merged状態・レビューSHA・ツリー差分で取り込み済みを確認。削除可能だがローカル／リモートの修正ブランチは保持した。
+- 記録更新は `docs/step-2-1-1-merge-record` から別PRとして提出。mainへの直接コミット・Pushは行わない。
+
+### 残っている未検証項目・次工程
+- 今回の修正に対するiPhone実機確認はユーザー確認待ち。ホーム表示・スクロール・タブ切り替え・ライト／ダーク表示・クラッシュなしを確認する。
+- Web実ブラウザでの描画・Home/Exploreクリック・OSテーマ変更・hydration警告はブラウザ操作ホストが利用できなかったため未確認。バンドル・HTTP・SSR検証の成功と区別する。
+- 静的検証の阻害要因は解消し、Phase 2.5の計画へ進める。実ブラウザ／iPhoneの残項目は継続して確認する。この工程ではExpoデプロイ作業は開始していない。
+
+### 他プロジェクトへの再利用
+- 承認されたhead SHAとGitHubの実headを照合し、マージ要求にもSHAを渡してレビュー後の変更混入を防ぐ。
+- GitHubの保護・必須チェックとローカル検証を両方確認し、保護を迂回せずマージする。
+- Squash後のブランチ削除可否はコミット祖先関係だけで判断せず、PRのMerged状態と内容差分を確認する。
+- マージ後も最新mainで同じ検証を実行し、その結果を別のドキュメントPRに記録する。
