@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { useColorScheme as useRNColorScheme } from 'react-native';
 
-/**
- * To support static rendering, this value needs to be re-calculated on the client side for web
- */
-export function useColorScheme() {
-  const [hasHydrated, setHasHydrated] = useState(false);
+// Hydration itself changes the snapshot; there is no external event to subscribe to.
+const subscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
-  useEffect(() => {
-    setHasHydrated(true);
-  }, []);
+/** Keep static rendering and initial hydration light, then use the device theme. */
+export function useColorScheme() {
+  const hasHydrated = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
 
   const colorScheme = useRNColorScheme();
 
