@@ -37,6 +37,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "901f2477-82b9-40df-bb93-092019f93990"
+      }
+    },
+    "owner": "masa-practice"
   }
 }
