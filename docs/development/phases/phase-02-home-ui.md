@@ -137,3 +137,7 @@ C:\Users\hanam\Documents\GitHub\LittleDiary\src\hooks\use-color-scheme.web.ts:11
 - https://reactnative.dev/docs/style
 - https://reactnative.dev/docs/text
 - https://reactnative.dev/docs/view
+
+### GitHub最終状態の再確認
+作業開始時にはopenだったPR #1が、作業中にmerged / closedへ更新されたことをGitHubで確認。Codexはmainへのマージ操作を行っていない。PR #2のbaseは `8b5551d2c5daf518edd3c263a4a2e764ce885562` に更新され、競合なし（mergeable=true）。PR #1の統合待ちは解消済み。次工程の条件はPR #2のレビューと既存Webエラーの扱いの合意。
+現在のmainとの差分は、ホーム・スタイル・Lint設定・package.json・lockfile・工程記録・テンプレート末尾空白の7ファイル。READMEと実装指示はmainと同一。Push成功を確認済み。
