@@ -3,13 +3,13 @@
 **未適用／未テスト**。[対象と現状](supabase-schema.md)、[SQL案](sql/foundation-test-entries.proposal.sql)。認証UIやユーザー作成は本工程で行わない。
 
 ## GRANTとRLSの分離
-GRANTは操作権限、RLSはその操作で対象にできる行を決める。いずれか一方で十分とは考えない。
+GRANTは操作権限、RLSはその操作で対象にできる行を決める。いずれか一方で十分とは考えない。既存のスキーマUSAGE権限は変更せず、REVOKE/GRANTは新規テーブルだけに適用する。
 
 | ロール | schema | テーブル／列権限 | RLS |
 | --- | --- | --- | --- |
 | PUBLIC | 既存schema権限は維持 | 新テーブルは全権限REVOKE | policyなし |
 | anon（JWTなし） | 既存USAGE維持 | 全権限REVOKE | policyなし、読み書き拒否 |
-| authenticated | USAGEのみ、CREATEなし | SELECT/DELETE、INSERT(user_id,content)、UPDATE(content,user_id) | 各CRUDでauth.uid()=user_idかつuid非NULL |
+| authenticated | 既存USAGE維持、CREATEなし | SELECT/DELETE、INSERT(user_id,content)、UPDATE(content,user_id) | 各CRUDでauth.uid()=user_idかつuid非NULL |
 
 TRUNCATE、REFERENCES、TRIGGER、MAINTAIN、GRANT OPTIONは付けない。id/created_atはSELECTのみでAPIから指定・変更できない。UUIDにシーケンスGRANTは不要。
 UPDATE(user_id)を許可するのはRLSのWITH CHECKで所有者変更を拒否する設計を直接テストするため。同じuser_idへの再指定は許される。さらに列権限でuser_idを完全不変とする代替案もあるが、その場合は所有者変更テストがRLS到達前に拒否される。

@@ -16,7 +16,6 @@ ALTER TABLE public.foundation_test_entries FORCE ROW LEVEL SECURITY;
 -- Remove defaults on this new relation only. Do not alter global defaults.
 REVOKE ALL PRIVILEGES ON TABLE public.foundation_test_entries
   FROM PUBLIC, anon, authenticated;
-GRANT USAGE ON SCHEMA public TO authenticated;
 GRANT SELECT, DELETE ON TABLE public.foundation_test_entries TO authenticated;
 GRANT INSERT (user_id, content) ON public.foundation_test_entries TO authenticated;
 GRANT UPDATE (content, user_id) ON public.foundation_test_entries TO authenticated;

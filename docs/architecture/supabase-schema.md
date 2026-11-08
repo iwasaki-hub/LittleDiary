@@ -24,7 +24,7 @@ FKはON DELETE CASCADEを提案。Authユーザー削除時にそのテスト行
 
 ## SQL案・既存への影響
 [未実行SQLファイル](sql/foundation-test-entries.proposal.sql)をレビュー用に保存。supabase/migrationsには置かない。
-新テーブル・index・4policy・新テーブルへのREVOKE/GRANTを同一トランザクションにまとめ、権限だけが先に公開される期間を作らない。IF NOT EXISTSを使わず同名テーブルがあれば停止する。public全体や既存テーブルの権限・既定ACLを変更しない。public schema USAGEのauthenticated付与は既存trueなので意味上拡張なし。
+新テーブル・index・4policy・新テーブルへのREVOKE/GRANTを同一トランザクションにまとめ、権限だけが先に公開される期間を作らない。IF NOT EXISTSを使わず同名テーブルがあれば停止する。public全体や既存テーブルの権限・既定ACLを変更しない。既存のスキーマUSAGE権限は維持し、スキーマへのGRANT/REVOKEは行わない。権限変更は新規テーブルだけに限定する。
 新規FKはauth.usersの主キーを参照するが、AuthスキーマのDDLやユーザー行変更は行わない。将来の親行削除時のみ連鎖削除となる。表所有者・superuser・BYPASSRLSの管理権限はクライアントの認可境界ではなく、テストには使わない。
 
 ## 承認後の実装計画（今回未実施）

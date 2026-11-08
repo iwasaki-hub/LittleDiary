@@ -34,7 +34,7 @@ HTTP調査は.env.localの公開キーをプロセス内で使用し、真偽値
 - 4policyすべて所有者条件と非NULL uidを使用。UPDATEにUSING/WITH CHECK両方。id/created_atは列権限で変更不可。
 - 同一トランザクション内で作成・RLS有効化・FORCE・権限・policy設定。IF NOT EXISTSなしで既存同名表への誤適用を防ぐ。
 - SQL構文はPostgreSQL17公式のCREATE TABLE／INDEX／POLICY、GRANT／REVOKEの形を机上レビュー。SQLパーサ／隔離Postgresでの実行による構文・動作確認は未実施。実DBへDDLを投げて構文チェックすることはしない。
-- 新規名以外へのALTER TABLE・DROP・DML、全schema対象GRANT、既定権限変更、SECURITY DEFINERは案に含めない。auth.usersへのFKと親削除時のCASCADE、schema USAGEの再付与は影響として明示。
+- 新規名以外へのALTER TABLE・DROP・DML、全schema対象GRANT、既定権限変更、SECURITY DEFINERは案に含めない。auth.usersへのFKと親削除時のCASCADEは影響として明示。既存schema USAGEは維持し、スキーマ権限を変更せず新規テーブルだけにREVOKE/GRANTする。
 
 ## Auth試験方針と未確定事項
 専用テストユーザーA/Bを推奨。匿名Authは同じauthenticatedロールで自分の行へアクセスでき、JWTなしanonとは異なる。作成・設定変更・cleanupは承認後のみ。実JWTを使用し、返却件数と所有者再読で「他人行の操作0件」を検証する。DB管理者による成功を受け入れテストに流用しない。
@@ -63,3 +63,10 @@ SQL/RLSの実行・実JWTによる認可テストは未実施。接続基盤の�
 - 新規3文書のMarkdown相対リンク: 全件解決。
 - git diff --check: 成功。
 - 変更対象は新規docs配下4ファイルだけ。SQL案は未実行、正式migration未生成。アプリコード・依存・設定・既存資料に差分なし。
+
+## PR #12 レビュー対応（2026-11-09）
+- SQL案のGRANT USAGE ON SCHEMA public TO authenticatedを1行だけ削除。既存USAGE=trueを前提にスキーマ権限は維持し、新規テーブルだけにREVOKE/GRANTする方針を関連設計と本記録へ反映。
+- SQLの机上レビューと前コミット比較で、上記1行以外のSQL変更なしを確認。テーブル定義・RLS4policy・Authテスト方針は維持。
+- TypeScript・ESLint終了コード0、既存単体3/3成功、Expo Doctor20/20成功。アプリコード変更なし。
+- Markdown相対リンク全件解決、git diff --check成功。SQLパーサ・実DBでの実行検証は未実施。
+- DBへのSQL実行・Auth変更・テストユーザー作成なし。同じPRへPushし、再レビュー待ちで停止。マージはしない。
