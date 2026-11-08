@@ -95,3 +95,21 @@ Foundation 2は残る外観・実端末Web確認と本PRレビューを引き継
 ## 参考資料
 - https://docs.expo.dev/versions/v58.0.0/
 - https://docs.expo.dev/eas/hosting/deployments-and-aliases/
+
+## PR #8 マージ後処理・iPhone Safari確認（2026-11-09）
+- ユーザーから公開Preview https://little-diary--rrk8p7a6hp.expo.app のiPhone Safari確認について「確認しました」と報告を受領。公開プレビュー確認成功として記録する。Codex自身による端末操作ではない。実施日時・端末／OS・個別の詳細検証項目は未報告のため補完しない。
+- 対象PR: https://github.com/iwasaki-hub/LittleDiary/pull/8
+- 確認開始時点で既にMERGED。こちらではSquash merge操作を再実行していない。
+- 最終head SHA: `bff5d56a99e777e99ee94007f62d08ff55e9cac1`。承認対象と一致し、レビュー後の追加変更なし。
+- 差分は本ファイルの新規追加1件のみで、Foundation 1記録の範囲と一致。
+- マージSHA: `4c98557ccb235f3f68667af5037caeb140dacb47`
+- GitHubマージ日時: 2026-11-09 01:38:19 JST（2026-11-08T16:38:19Z）。Merged状態を確認。
+- チェック表示はstatusCheckRollup=[]、mainの保護APIはBranch not protected、適用ルールAPIは空配列。確認時点で既にMergedのため、競合のUNKNOWNをマージ前の競合なしの証拠とは扱わない。保護迂回操作なし。
+- 未コミット差分なしを確認後、`git switch main`、`git pull --ff-only origin main` は成功。mainは上記マージSHAに同期。
+- 同期後の検証: `npx.cmd tsc --noEmit` 成功（終了コード0）、PowerShell `$env:CI='1'; npx.cmd expo lint` 成功（終了コード0）、`npx.cmd expo-doctor` 20/20成功（終了コード0）。
+- 追記は `docs/foundation-01-merge-record` から別のドキュメントPRで提出し、mainへ直接Pushしない。作業ブランチは削除しない。
+- 以前のスマートフォン確認待ちは当時の状態として保持し、今回のSafari成功報告を追記で更新。Codexのスクリーンショット取得未実施、詳細なPC外観・全操作・全ブラウザ保証とは区別する。
+- Foundation 2のDB実装・新機能・再デプロイは開始していない。次工程の具体的範囲と検証条件の合意を待つ。
+
+### 再利用できる知見
+承認SHAと実headを比較し、既にMergedなら二重マージせず状態・マージSHAを確認して同期する。端末確認の報告受領日と実施日・詳細項目を区別し、main同期後に同じ静的検証を再実行する。マージ後の記録は別PRへ分離する。
