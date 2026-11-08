@@ -70,3 +70,30 @@ SQL/RLSの実行・実JWTによる認可テストは未実施。接続基盤の�
 - TypeScript・ESLint終了コード0、既存単体3/3成功、Expo Doctor20/20成功。アプリコード変更なし。
 - Markdown相対リンク全件解決、git diff --check成功。SQLパーサ・実DBでの実行検証は未実施。
 - DBへのSQL実行・Auth変更・テストユーザー作成なし。同じPRへPushし、再レビュー待ちで停止。マージはしない。
+
+## PR #12 マージ・後処理（2026-11-09）
+- PR: https://github.com/iwasaki-hub/LittleDiary/pull/12
+- Open・MERGEABLE・CLEAN、最終head `5f61cf7c1e1a8d339be44cf3838e6938ded8b4dc` と承認SHAの完全一致を確認。docs配下4ファイルのみ。
+- 旧headとの差分でSQLは不要なスキーマUSAGE GRANTの1行削除だけ。テーブル定義・4policy・Authテスト方針は変更なし。再レビュー本文で前回指摘解消とマージ推奨を確認。reviewThreadsは0件（追加ページなし）、CHANGES_REQUESTEDなし。
+- statusCheckRollupは空、main保護APIはBranch not protected、適用ルールは空配列。保護迂回なし。
+- expected_head_shaに承認SHAを指定してSquash merge成功、GitHub merged=trueを確認。
+- マージSHA: `f5e8ca600020f9dbe6aa626794c5dc5ee2483724`
+- GitHub日時: 2026-11-09 02:10:48 JST（2026-11-08T17:10:48Z）。
+- 開始時の作業ツリーはクリーン。git switch main、git pull --ff-only origin mainに成功。mainは上記SHA、同期直後のgit statusに未コミット変更なし。.env.localは保護・保持。
+- main同期後: npx.cmd tsc --noEmit成功、CI=1のnpx.cmd expo lint成功、node --test tests/supabase.test.cjsは3/3成功、npx.cmd expo-doctorは20/20成功。すべて終了コード0。
+- 記録追記はdocs/foundation-02-02a-merge-recordと別ドキュメントPRで提出。mainへ直接Pushせず、元ブランチは保持。
+
+## Foundation 2-2Bへの準備事項・承認ゲート
+本設計PRのマージは実DB適用の承認ではない。以下を次の依頼で確認・合意する。今回これらを変更・実行していない。
+
+| 準備事項 | 次工程で必要な判断・証拠 |
+| --- | --- |
+| Data API公開設定 | 対象refのDashboardで有効化・公開スキーマとpublic公開を読み取り確認。公開キーのメタデータ401を無効設定と断定しない。変更が必要なら変更内容を別途承認 |
+| AuthテストA/B | 専用メール確認済みユーザー2名を推奨。作成方式・メール管理者・秘密の保管場所・作成削除権限を合意。匿名Authなら設定変更・濫用対策・authenticatedロール扱いも承認 |
+| ON DELETE CASCADE | テスト行の親ユーザー削除で連鎖削除する案を最終承認。RESTRICTとの違い、既発行JWTは即失効しない点を確認 |
+| 保持期間と削除 | 推奨案は受け入れ試験完了後に当該runのテスト行を削除。調査のため保持するなら期限・責任者を決める。削除対象idを追跡し、テーブル全体の一括削除をしない。ユーザー削除も別途対象・承認を確認 |
+| CLI migration管理 | CLI版・--help、ローカル実行環境と対象ref、migrationディレクトリ・履歴の運用を合意。公式migration newで正式ファイルを生成し、既存proposalと差分照合。CLI/link/remote適用先を明示 |
+| 実DB適用承認 | Data API、同名表不在、既定ACL、実行ロール、最終SQL／migration、CASCADE、cleanup、失敗時の復旧方針をレビューし、ユーザーから対象refへの実適用を明示承認してもらう |
+| 実JWTテスト承認 | A/B/Nの作成・ログイン・CRUDとcleanupの範囲を明示承認後に実施。公開キー＋本物のJWTを使用し、service-roleで代替しない。返却件数・所有者再読・WITH CHECK拒否・anon拒否をassertしログにtokenを残さない |
+
+SQL案は引き続き未実行。テーブル・RLS・GRANT・Auth設定・テストユーザー・アプリUIを変更せず、Expo再デプロイもしていない。机上設計・既存アプリ単体テストと、実DB/RLS認可試験は別の完了条件とする。
