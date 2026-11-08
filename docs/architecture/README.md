@@ -12,3 +12,10 @@ Foundation 0ではExpo SDK 58、React Native、TypeScript strict、Expo Router�
 app.json、アイコン・スプラッシュ等の参照画像は保持する。ownerはmasa-practice、EAS project IDは901f2477-82b9-40df-bb93-092019f93990。web.output=serverを維持し、ios/androidを手動生成しない。
 
 [Foundation 0の検証と復元方法](../development/phases/foundation-00-reset.md)
+
+## Foundation 2-1：Supabase接続基盤
+- `src/lib/supabase/client.ts` のgetSupabaseClient()で必要時に初期化する。プレースホルダー／ルートからは呼ばない。
+- config.tsはEXPO_PUBLICのURLとpublishable keyを検証し、未設定時は値を出さずにエラーとする。
+- nativeはexpo-sqlite/localStorage、WebはブラウザlocalStorageを使う。SSRで共有クライアントを作成しない。SQLiteはセッション保管のみで日記保存ではない。
+- 新規Supabase LittleDiary（東京、Free、ユーザー承認済み）へ接続。Expo Hostingのproject IDとは別の識別子として扱う。
+- 詳細・制限・検証は[Foundation 2-1記録](../development/phases/foundation-02-01-supabase.md)。認証UI・DBスキーマ・同期機能は未実装。
