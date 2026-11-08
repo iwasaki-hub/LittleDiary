@@ -1,0 +1,102 @@
+{
+  "sourceCommit": "189adda99d1b56da55fc5a6ee3f849354aaea92a",
+  "checked": "2026-11-09",
+  "images": [
+    {
+      "image": "supabase/studio:2026.11.02-sha-a05e7ec",
+      "repository": "supabase/studio",
+      "tag": "2026.11.02-sha-a05e7ec",
+      "digest": "sha256:727a7f37b15f4c76c44e0d765e6be231d8d71c67f2933b2df8c6cbcc9b04c5d0",
+      "reference": "supabase/studio:2026.11.02-sha-a05e7ec@sha256:727a7f37b15f4c76c44e0d765e6be231d8d71c67f2933b2df8c6cbcc9b04c5d0",
+      "verified": true
+    },
+    {
+      "image": "envoyproxy/envoy:v1.39.6",
+      "repository": "envoyproxy/envoy",
+      "tag": "v1.39.6",
+      "digest": "sha256:1fde8efee875e4e4f6a39a90fe49d9338e1caacce5762034ef9fb4bbb9ad6aed",
+      "reference": "envoyproxy/envoy:v1.39.6@sha256:1fde8efee875e4e4f6a39a90fe49d9338e1caacce5762034ef9fb4bbb9ad6aed",
+      "verified": true
+    },
+    {
+      "image": "supabase/gotrue:v2.197.0",
+      "repository": "supabase/gotrue",
+      "tag": "v2.197.0",
+      "digest": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "reference": "supabase/gotrue:v2.197.0@sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "verified": true
+    },
+    {
+      "image": "postgrest/postgrest:v14.18",
+      "repository": "postgrest/postgrest",
+      "tag": "v14.18",
+      "digest": "sha256:c7cd7e265a85b05248abf53f4473fcec7e327c282d0bd0cf60f1551996d09fcf",
+      "reference": "postgrest/postgrest:v14.18@sha256:c7cd7e265a85b05248abf53f4473fcec7e327c282d0bd0cf60f1551996d09fcf",
+      "verified": true
+    },
+    {
+      "image": "supabase/realtime:v2.148.3",
+      "repository": "supabase/realtime",
+      "tag": "v2.148.3",
+      "digest": "sha256:25cf375b9b7cb71d90cdf6e04a1a30996e39a8df866ebd0525bba1d959edc8d6",
+      "reference": "supabase/realtime:v2.148.3@sha256:25cf375b9b7cb71d90cdf6e04a1a30996e39a8df866ebd0525bba1d959edc8d6",
+      "verified": true
+    },
+    {
+      "image": "supabase/storage-api:v1.89.12",
+      "repository": "supabase/storage-api",
+      "tag": "v1.89.12",
+      "digest": "sha256:8526956cb462e9f7d392e9848ec77133b2769982ed614e9753cc687e8e4339a6",
+      "reference": "supabase/storage-api:v1.89.12@sha256:8526956cb462e9f7d392e9848ec77133b2769982ed614e9753cc687e8e4339a6",
+      "verified": true
+    },
+    {
+      "image": "darthsim/imgproxy:v4.0.21",
+      "repository": "darthsim/imgproxy",
+      "tag": "v4.0.21",
+      "digest": "sha256:69ae09dbc3349944564cb2f66cf35f80a4a9a78fda73d06061a337849520ab1f",
+      "reference": "darthsim/imgproxy:v4.0.21@sha256:69ae09dbc3349944564cb2f66cf35f80a4a9a78fda73d06061a337849520ab1f",
+      "verified": true
+    },
+    {
+      "image": "supabase/postgres-meta:v0.100.0",
+      "repository": "supabase/postgres-meta",
+      "tag": "v0.100.0",
+      "digest": "sha256:145325b7e39f8ef4931d6e8cfd3f6f4d655de09d72a2ccc96d9513542c2202bd",
+      "reference": "supabase/postgres-meta:v0.100.0@sha256:145325b7e39f8ef4931d6e8cfd3f6f4d655de09d72a2ccc96d9513542c2202bd",
+      "verified": true
+    },
+    {
+      "image": "supabase/edge-runtime:v1.77.9",
+      "repository": "supabase/edge-runtime",
+      "tag": "v1.77.9",
+      "digest": "sha256:6b850a2ccf0bf50ecac9accff8098095cd191c389c2a53c59b857aa0f53a8343",
+      "reference": "supabase/edge-runtime:v1.77.9@sha256:6b850a2ccf0bf50ecac9accff8098095cd191c389c2a53c59b857aa0f53a8343",
+      "verified": true
+    },
+    {
+      "image": "supabase/postgres:17.6.1.136",
+      "repository": "supabase/postgres",
+      "tag": "17.6.1.136",
+      "digest": "sha256:f371b5f3f2ac0a05703f33d6e6134515fb2498cab708fb948a0aeb7481467c00",
+      "reference": "supabase/postgres:17.6.1.136@sha256:f371b5f3f2ac0a05703f33d6e6134515fb2498cab708fb948a0aeb7481467c00",
+      "verified": true
+    },
+    {
+      "image": "supabase/supavisor:2.9.13",
+      "repository": "supabase/supavisor",
+      "tag": "2.9.13",
+      "digest": "sha256:07f1a6098ffc04b80263bca4eb5c3e7bd2e03dfd1fc465aa108d7329000a1a4e",
+      "reference": "supabase/supavisor:2.9.13@sha256:07f1a6098ffc04b80263bca4eb5c3e7bd2e03dfd1fc465aa108d7329000a1a4e",
+      "verified": true
+    },
+    {
+      "image": "axllent/mailpit:v1.31.3",
+      "repository": "axllent/mailpit",
+      "tag": "v1.31.3",
+      "digest": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "reference": "axllent/mailpit:v1.31.3@sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "verified": true
+    }
+  ]
+}

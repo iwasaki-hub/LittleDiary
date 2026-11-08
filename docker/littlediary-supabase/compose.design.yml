@@ -1,0 +1,550 @@
+# DESIGN ONLY / NOT STARTED. Missing local secrets and runtime asset staging.
+name: littlediary-supabase-design
+services:
+  studio:
+    image: supabase/studio:2026.11.02-sha-a05e7ec@sha256:727a7f37b15f4c76c44e0d765e6be231d8d71c67f2933b2df8c6cbcc9b04c5d0
+    restart: 'no'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          node -e "fetch('http://localhost:3000/api/platform/profile').then((r) => {if (r.status !== 200) throw new
+          Error(r.status)})"
+      timeout: 10s
+      interval: 5s
+      retries: 3
+      start_period: 20s
+    environment:
+      HOSTNAME: 0.0.0.0
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PORT: ${LD_POSTGRES_PORT}
+      POSTGRES_HOST: ${LD_POSTGRES_HOST}
+      POSTGRES_DB: ${LD_POSTGRES_DB}
+      POSTGRES_PASSWORD: ${LD_POSTGRES_PASSWORD:?local value required}
+      POSTGRES_USER_READ_WRITE: postgres
+      PG_META_CRYPTO_KEY: ${LD_PG_META_CRYPTO_KEY:?local value required}
+      PGRST_DB_SCHEMAS: ${LD_PGRST_DB_SCHEMAS}
+      PGRST_DB_MAX_ROWS: ${LD_PGRST_DB_MAX_ROWS:-1000}
+      PGRST_DB_EXTRA_SEARCH_PATH: ${LD_PGRST_DB_EXTRA_SEARCH_PATH:-public}
+      DEFAULT_ORGANIZATION_NAME: ${LD_STUDIO_DEFAULT_ORGANIZATION}
+      DEFAULT_PROJECT_NAME: ${LD_STUDIO_DEFAULT_PROJECT}
+      OPENAI_API_KEY: ${LD_OPENAI_API_KEY}
+      SUPABASE_URL: http://api-gw:8000
+      SUPABASE_PUBLIC_URL: ${LD_SUPABASE_PUBLIC_URL}
+      SUPABASE_ANON_KEY: ${LD_ANON_KEY:?local value required}
+      SUPABASE_SERVICE_KEY: ${LD_SERVICE_ROLE_KEY:?local value required}
+      AUTH_JWT_SECRET: ${LD_JWT_SECRET:?local value required}
+      SUPABASE_PUBLISHABLE_KEY: ${LD_SUPABASE_PUBLISHABLE_KEY}
+      SUPABASE_SECRET_KEY: ${LD_SUPABASE_SECRET_KEY}
+      ENABLED_FEATURES_LOGS_ALL: 'false'
+      SNIPPETS_MANAGEMENT_FOLDER: /app/snippets
+      EDGE_FUNCTIONS_MANAGEMENT_FOLDER: /app/edge-functions
+    volumes:
+      - type: volume
+        source: snippets
+        target: /app/snippets
+      - type: bind
+        source: ./.local/functions
+        target: /app/edge-functions
+        read_only: true
+        bind:
+          create_host_path: false
+    pull_policy: never
+    networks:
+      - default
+  api-gw:
+    image: envoyproxy/envoy:v1.39.6@sha256:1fde8efee875e4e4f6a39a90fe49d9338e1caacce5762034ef9fb4bbb9ad6aed
+    restart: 'no'
+    networks:
+      default:
+        aliases:
+          - envoy
+          - kong
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - timeout 1 bash -c '</dev/tcp/127.0.0.1/8000'
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      studio:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./upstream/api/envoy/envoy.yaml
+        target: /etc/envoy/envoy.yaml
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./upstream/api/envoy/cds.yaml
+        target: /etc/envoy/cds.yaml
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./upstream/api/envoy/lds.template.yaml
+        target: /etc/envoy/lds.template.yaml
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./upstream/api/envoy/docker-entrypoint.sh
+        target: /docker-entrypoint.sh
+        read_only: true
+        bind:
+          create_host_path: false
+    environment:
+      ANON_KEY: ${LD_ANON_KEY:?local value required}
+      SERVICE_ROLE_KEY: ${LD_SERVICE_ROLE_KEY:?local value required}
+      SUPABASE_PUBLISHABLE_KEY: ${LD_SUPABASE_PUBLISHABLE_KEY:-}
+      SUPABASE_SECRET_KEY: ${LD_SUPABASE_SECRET_KEY:-}
+      ANON_KEY_ASYMMETRIC: ${LD_ANON_KEY_ASYMMETRIC:-}
+      SERVICE_ROLE_KEY_ASYMMETRIC: ${LD_SERVICE_ROLE_KEY_ASYMMETRIC:-}
+      SUPABASE_PUBLIC_URL: ${LD_SUPABASE_PUBLIC_URL}
+      DASHBOARD_USERNAME: ${LD_DASHBOARD_USERNAME}
+      DASHBOARD_PASSWORD: ${LD_DASHBOARD_PASSWORD:?local value required}
+      LD_DESIGN_APPROVAL: ${LD_DESIGN_APPROVAL:?design only - separate execution approval required}
+    entrypoint:
+      - /bin/sh
+      - /docker-entrypoint.sh
+    pull_policy: never
+    ports:
+      - target: 8000
+        published: '55321'
+        host_ip: 127.0.0.1
+        protocol: tcp
+  auth:
+    image: supabase/gotrue:v2.197.0@sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b
+    restart: 'no'
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - '--no-verbose'
+        - '--tries=1'
+        - '--spider'
+        - http://localhost:9999/health
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: ${LD_API_EXTERNAL_URL}
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: >-
+        postgres://supabase_auth_admin:${LD_POSTGRES_PASSWORD:?local value
+        required}@${LD_POSTGRES_HOST}:${LD_POSTGRES_PORT}/${LD_POSTGRES_DB}
+      GOTRUE_SITE_URL: ${LD_SITE_URL}
+      GOTRUE_URI_ALLOW_LIST: ${LD_ADDITIONAL_REDIRECT_URLS}
+      GOTRUE_DISABLE_SIGNUP: ${LD_DISABLE_SIGNUP}
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: ${LD_JWT_EXPIRY}
+      GOTRUE_JWT_SECRET: ${LD_JWT_SECRET:?local value required}
+      GOTRUE_JWT_ISSUER: ${LD_API_EXTERNAL_URL}
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: ${LD_ENABLE_EMAIL_SIGNUP}
+      GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED: 'false'
+      GOTRUE_MAILER_AUTOCONFIRM: 'false'
+      GOTRUE_SMTP_ADMIN_EMAIL: admin@example.invalid
+      GOTRUE_SMTP_HOST: mailpit
+      GOTRUE_SMTP_PORT: '1025'
+      GOTRUE_SMTP_USER: ''
+      GOTRUE_SMTP_PASS: ''
+      GOTRUE_SMTP_SENDER_NAME: LittleDiary local
+      GOTRUE_MAILER_URLPATHS_INVITE: ${LD_MAILER_URLPATHS_INVITE}
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: ${LD_MAILER_URLPATHS_CONFIRMATION}
+      GOTRUE_MAILER_URLPATHS_RECOVERY: ${LD_MAILER_URLPATHS_RECOVERY}
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${LD_MAILER_URLPATHS_EMAIL_CHANGE}
+      GOTRUE_EXTERNAL_PHONE_ENABLED: 'false'
+      GOTRUE_SMS_AUTOCONFIRM: ${LD_ENABLE_PHONE_AUTOCONFIRM}
+    pull_policy: never
+    networks:
+      - default
+  rest:
+    image: postgrest/postgrest:v14.18@sha256:c7cd7e265a85b05248abf53f4473fcec7e327c282d0bd0cf60f1551996d09fcf
+    restart: 'no'
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - postgrest
+        - '--ready'
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      PGRST_DB_URI: >-
+        postgres://authenticator:${LD_POSTGRES_PASSWORD:?local value
+        required}@${LD_POSTGRES_HOST}:${LD_POSTGRES_PORT}/${LD_POSTGRES_DB}
+      PGRST_DB_SCHEMAS: ${LD_PGRST_DB_SCHEMAS}
+      PGRST_DB_MAX_ROWS: ${LD_PGRST_DB_MAX_ROWS:-1000}
+      PGRST_DB_EXTRA_SEARCH_PATH: ${LD_PGRST_DB_EXTRA_SEARCH_PATH:-public}
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_ADMIN_SERVER_PORT: 3001
+      PGRST_ADMIN_SERVER_HOST: localhost
+      PGRST_JWT_SECRET: ${LD_JWT_JWKS:-${LD_JWT_SECRET:?local value required}}
+      PGRST_DB_USE_LEGACY_GUCS: 'false'
+      PGRST_APP_SETTINGS_JWT_EXP: ${LD_JWT_EXPIRY}
+    command:
+      - postgrest
+    pull_policy: never
+    networks:
+      - default
+  realtime:
+    image: supabase/realtime:v2.148.3@sha256:25cf375b9b7cb71d90cdf6e04a1a30996e39a8df866ebd0525bba1d959edc8d6
+    restart: 'no'
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          curl -sSfL --head -o /dev/null -H "Authorization: Bearer ${LD_ANON_KEY:?local value required}"
+          http://localhost:4000/api/tenants/realtime-dev/health
+      timeout: 5s
+      interval: 30s
+      retries: 3
+      start_period: 10s
+    environment:
+      PORT: 4000
+      DB_HOST: ${LD_POSTGRES_HOST}
+      DB_PORT: ${LD_POSTGRES_PORT}
+      DB_USER: supabase_admin
+      DB_PASSWORD: ${LD_POSTGRES_PASSWORD:?local value required}
+      DB_NAME: ${LD_POSTGRES_DB}
+      DB_AFTER_CONNECT_QUERY: SET search_path TO _realtime
+      DB_ENC_KEY: ${LD_REALTIME_DB_ENC_KEY:?local secret required}
+      API_JWT_SECRET: ${LD_JWT_SECRET:?local value required}
+      SECRET_KEY_BASE: ${LD_SECRET_KEY_BASE:?local value required}
+      METRICS_JWT_SECRET: ${LD_JWT_SECRET:?local value required}
+      ERL_AFLAGS: '-proto_dist inet_tcp'
+      DNS_NODES: ''''''
+      RLIMIT_NOFILE: '10000'
+      APP_NAME: realtime
+      SEED_SELF_HOST: 'true'
+      RUN_JANITOR: 'true'
+      DISABLE_HEALTHCHECK_LOGGING: 'true'
+    pull_policy: never
+    networks:
+      default:
+        aliases:
+          - realtime-dev.supabase-realtime
+    container_name: realtime-dev.littlediary-supabase-design-realtime
+  storage:
+    image: supabase/storage-api:v1.89.12@sha256:8526956cb462e9f7d392e9848ec77133b2769982ed614e9753cc687e8e4339a6
+    restart: 'no'
+    depends_on:
+      db:
+        condition: service_healthy
+      rest:
+        condition: service_started
+      imgproxy:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - '--no-verbose'
+        - '--tries=1'
+        - '--spider'
+        - http://storage:5000/status
+      timeout: 5s
+      interval: 5s
+      retries: 3
+      start_period: 10s
+    environment:
+      ANON_KEY: ${LD_ANON_KEY:?local value required}
+      SERVICE_KEY: ${LD_SERVICE_ROLE_KEY:?local value required}
+      POSTGREST_URL: http://rest:3000
+      AUTH_JWT_SECRET: ${LD_JWT_SECRET:?local value required}
+      DATABASE_URL: >-
+        postgres://supabase_storage_admin:${LD_POSTGRES_PASSWORD:?local value
+        required}@${LD_POSTGRES_HOST}:${LD_POSTGRES_PORT}/${LD_POSTGRES_DB}
+      STORAGE_PUBLIC_URL: ${LD_SUPABASE_PUBLIC_URL}
+      REQUEST_ALLOW_X_FORWARDED_PATH: 'true'
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      GLOBAL_S3_BUCKET: ${LD_GLOBAL_S3_BUCKET}
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: ${LD_STORAGE_TENANT_ID}
+      REGION: ${LD_REGION}
+      ENABLE_IMAGE_TRANSFORMATION: 'true'
+      IMGPROXY_URL: http://imgproxy:5001
+      S3_PROTOCOL_ACCESS_KEY_ID: ${LD_S3_PROTOCOL_ACCESS_KEY_ID:?local value required}
+      S3_PROTOCOL_ACCESS_KEY_SECRET: ${LD_S3_PROTOCOL_ACCESS_KEY_SECRET:?local value required}
+    volumes:
+      - type: volume
+        source: storage-data
+        target: /var/lib/storage
+    pull_policy: never
+    networks:
+      - default
+  imgproxy:
+    image: darthsim/imgproxy:v4.0.21@sha256:69ae09dbc3349944564cb2f66cf35f80a4a9a78fda73d06061a337849520ab1f
+    restart: 'no'
+    volumes:
+      - type: volume
+        source: storage-data
+        target: /var/lib/storage
+    healthcheck:
+      test:
+        - CMD
+        - imgproxy
+        - health
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    environment:
+      IMGPROXY_BIND: ':5001'
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
+      IMGPROXY_USE_ETAG: 'true'
+      IMGPROXY_AUTO_WEBP: ${LD_IMGPROXY_AUTO_WEBP}
+      IMGPROXY_MAX_SRC_RESOLUTION: 16.8
+    pull_policy: never
+    networks:
+      - default
+  meta:
+    image: supabase/postgres-meta:v0.100.0@sha256:145325b7e39f8ef4931d6e8cfd3f6f4d655de09d72a2ccc96d9513542c2202bd
+    restart: 'no'
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: ${LD_POSTGRES_HOST}
+      PG_META_DB_PORT: ${LD_POSTGRES_PORT}
+      PG_META_DB_NAME: ${LD_POSTGRES_DB}
+      PG_META_DB_USER: postgres
+      PG_META_DB_PASSWORD: ${LD_POSTGRES_PASSWORD:?local value required}
+      CRYPTO_KEY: ${LD_PG_META_CRYPTO_KEY:?local value required}
+    pull_policy: never
+    networks:
+      - default
+  functions:
+    image: supabase/edge-runtime:v1.77.9@sha256:6b850a2ccf0bf50ecac9accff8098095cd191c389c2a53c59b857aa0f53a8343
+    mem_limit: ${LD_FUNCTIONS_MEMORY_LIMIT:-2g}
+    restart: 'no'
+    volumes:
+      - type: bind
+        source: ./.local/functions
+        target: /home/deno/functions
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: volume
+        source: deno-cache
+        target: /root/.cache/deno
+    depends_on:
+      api-gw:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - timeout 1 bash -c '</dev/tcp/127.0.0.1/9000'
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      JWT_SECRET: ${LD_JWT_SECRET:?local value required}
+      SUPABASE_URL: http://api-gw:8000
+      SUPABASE_PUBLIC_URL: ${LD_SUPABASE_PUBLIC_URL}
+      SUPABASE_ANON_KEY: ${LD_ANON_KEY:?local value required}
+      SUPABASE_SERVICE_ROLE_KEY: ${LD_SERVICE_ROLE_KEY:?local value required}
+      SUPABASE_PUBLISHABLE_KEYS: '{"default":"${LD_SUPABASE_PUBLISHABLE_KEY:-}"}'
+      SUPABASE_SECRET_KEYS: '{"default":"${LD_SUPABASE_SECRET_KEY:-}"}'
+      SUPABASE_DB_URL: >-
+        postgresql://postgres:${LD_POSTGRES_PASSWORD:?local value
+        required}@${LD_POSTGRES_HOST}:${LD_POSTGRES_PORT}/${LD_POSTGRES_DB}
+      VERIFY_JWT: ${LD_FUNCTIONS_VERIFY_JWT}
+    command:
+      - start
+      - '--user-worker-request-idle-timeout'
+      - '150000'
+      - '--main-service'
+      - /home/deno/functions/main
+    pull_policy: never
+    networks:
+      - default
+  db:
+    image: supabase/postgres:17.6.1.136@sha256:f371b5f3f2ac0a05703f33d6e6134515fb2498cab708fb948a0aeb7481467c00
+    restart: 'no'
+    volumes:
+      - type: bind
+        source: ./upstream/db/realtime.sql
+        target: /docker-entrypoint-initdb.d/migrations/99-realtime.sql
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./upstream/db/webhooks.sql
+        target: /docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./upstream/db/roles.sql
+        target: /docker-entrypoint-initdb.d/init-scripts/99-roles.sql
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./upstream/db/jwt.sql
+        target: /docker-entrypoint-initdb.d/init-scripts/99-jwt.sql
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: volume
+        source: db-data
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ./upstream/db/_supabase.sql
+        target: /docker-entrypoint-initdb.d/migrations/97-_supabase.sql
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./upstream/db/logs.sql
+        target: /docker-entrypoint-initdb.d/migrations/99-logs.sql
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./upstream/db/pooler.sql
+        target: /docker-entrypoint-initdb.d/migrations/99-pooler.sql
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: volume
+        source: db-config
+        target: /etc/postgresql-custom
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - '-U'
+        - postgres
+        - '-h'
+        - localhost
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      PGPORT: ${LD_POSTGRES_PORT}
+      POSTGRES_PORT: ${LD_POSTGRES_PORT}
+      PGPASSWORD: ${LD_POSTGRES_PASSWORD:?local value required}
+      POSTGRES_PASSWORD: ${LD_POSTGRES_PASSWORD:?local value required}
+      PGDATABASE: ${LD_POSTGRES_DB}
+      POSTGRES_DB: ${LD_POSTGRES_DB}
+      JWT_EXP: ${LD_JWT_EXPIRY}
+    command:
+      - postgres
+      - '-c'
+      - config_file=/etc/postgresql/postgresql.conf
+      - '-c'
+      - log_min_messages=fatal
+    pull_policy: never
+    networks:
+      - default
+    ports:
+      - target: 5432
+        published: '55322'
+        host_ip: 127.0.0.1
+        protocol: tcp
+  supavisor:
+    image: supabase/supavisor:2.9.13@sha256:07f1a6098ffc04b80263bca4eb5c3e7bd2e03dfd1fc465aa108d7329000a1a4e
+    restart: 'no'
+    volumes:
+      - type: bind
+        source: ./upstream/pooler/pooler.exs
+        target: /etc/pooler/pooler.exs
+        read_only: true
+        bind:
+          create_host_path: false
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - '-sSfL'
+        - '--head'
+        - '-o'
+        - /dev/null
+        - http://127.0.0.1:4000/api/health
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      POSTGRES_PORT: ${LD_POSTGRES_PORT}
+      POSTGRES_HOST: ${LD_POSTGRES_HOST}
+      POSTGRES_DB: ${LD_POSTGRES_DB}
+      POSTGRES_PASSWORD: ${LD_POSTGRES_PASSWORD:?local value required}
+      DATABASE_URL: >-
+        ecto://supabase_admin:${LD_POSTGRES_PASSWORD:?local value
+        required}@${LD_POSTGRES_HOST}:${LD_POSTGRES_PORT}/_supabase
+      CLUSTER_POSTGRES: 'true'
+      SECRET_KEY_BASE: ${LD_SECRET_KEY_BASE:?local value required}
+      VAULT_ENC_KEY: ${LD_VAULT_ENC_KEY:?local value required}
+      API_JWT_SECRET: ${LD_JWT_SECRET:?local value required}
+      METRICS_JWT_SECRET: ${LD_JWT_SECRET:?local value required}
+      REGION: local
+      ERL_AFLAGS: '-proto_dist inet_tcp'
+      POOLER_TENANT_ID: ${LD_POOLER_TENANT_ID}
+      POOLER_DEFAULT_POOL_SIZE: ${LD_POOLER_DEFAULT_POOL_SIZE}
+      POOLER_MAX_CLIENT_CONN: ${LD_POOLER_MAX_CLIENT_CONN}
+      POOLER_POOL_MODE: transaction
+      DB_POOL_SIZE: ${LD_POOLER_DB_POOL_SIZE}
+    command:
+      - /bin/sh
+      - '-c'
+      - /app/bin/migrate && /app/bin/supavisor eval "$$(cat /etc/pooler/pooler.exs)" && /app/bin/server
+    pull_policy: never
+    networks:
+      - default
+  mailpit:
+    image: axllent/mailpit:v1.31.3@sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d
+    pull_policy: never
+    restart: 'no'
+    healthcheck:
+      test:
+        - CMD
+        - /mailpit
+        - readyz
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - target: 8025
+        published: '55324'
+        host_ip: 127.0.0.1
+        protocol: tcp
+    networks:
+      - default
+volumes:
+  db-data: {}
+  db-config: {}
+  deno-cache: {}
+  storage-data: {}
+  snippets: {}
+networks:
+  default:
+    driver: bridge
+    enable_ipv6: false
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: 127.0.0.1
