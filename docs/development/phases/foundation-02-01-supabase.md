@@ -86,3 +86,19 @@ EAS preview環境に同じ2変数を登録し、export実行時にもその値�
 ## 最終差分確認
 最終Lintは終了コード0。git diff --check成功。src/appはorigin/mainと差分なし。実値.env.localはgit statusに現れず、空の.env.exampleだけをコミット対象とする。最終exportはローカル設定ありでも実行し、画面・ルートを変更しないことを確認する。
 最終ローカル設定ありWeb exportも成功（終了コード0）。生成物と実設定はコミットしない。Web／nativeの実クライアント接続・セッション保存の実機検証は引き続き未実施。
+
+## PR #10 マージ・後処理（2026-11-09）
+- PR: https://github.com/iwasaki-hub/LittleDiary/pull/10
+- ユーザー承認後、Open・MERGEABLE・CLEANとレビュー対象head `081a6e3bcbde10859bba7d5adb351b70eb61820e` の一致を確認。expected_head_shaに同SHAを指定してSquash merge成功。GitHubのmerged=trueを再確認。
+- マージコミット: `43be38b8a685ce41d850560d13b97483c025b99b`
+- GitHub記録のマージ日時: 2026-11-09 01:53:08 JST（2026-11-08T16:53:08Z）。
+- 必須チェック表示は空配列、main保護APIはBranch not protected、適用ルールAPIも空配列。保護の迂回操作なし。
+- 差分12ファイルを確認。src/appのUI変更なし。.env.localの実値をメモリ内で差分と照合して一致0件、.env.localはGit除外。secret形式のパターン一致はテストの拒否検証用ダミーのみであり実キーではない。秘密値自体は出力・記録しない。
+- マージ前: TypeScript・ESLintは終了コード0、単体テスト3/3成功、Expo Doctor20/20成功。
+- クリーンな状態でgit switch main、git pull --ff-only origin main成功。mainは上記マージSHAへ同期、未コミット差分なし。.env.localを保持。
+- 同期後: npx.cmd tsc --noEmit成功、PowerShellでCI=1のnpx.cmd expo lint成功、node --test tests/supabase.test.cjsは3/3成功、npx.cmd expo-doctorは20/20成功。すべて終了コード0。
+- 本追記はdocs/foundation-02-01-merge-recordから別ドキュメントPRへ提出。mainへ直接Pushせず、元の作業ブランチも保持。
+
+### 未検証・Foundation 2-2への引き継ぎ
+実機／実ブラウザでの実クライアント初期化・セッション保存・復帰・refresh、DBテーブルの読み書き・RLS評価、Hosting Previewへの環境変数反映は引き続き未確認。以前のAuth設定GETのHTTP 200をこれらの成功と混同しない。
+Foundation 2-2は次の対象範囲と受け入れ条件を合意し、必要な実機検証・スキーマ／RLS／権限設計の承認を得て進める。この後処理ではSupabaseテーブル作成、RLS変更、認証UI、Expo再デプロイを実施していない。
