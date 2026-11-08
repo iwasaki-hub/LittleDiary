@@ -1,17 +1,12 @@
-import { Text, View, StyleSheet } from "react-native";
+import { Stack } from 'expo-router';
+
+import { LoginScreen } from '@/components/login-screen';
 
 export default function Index() {
   return (
-    <View style={styles.container}>
-      <Text>Edit src/app/index.tsx to edit this screen.</Text>
-    </View>
+    <>
+      <Stack.Screen options={{ title: 'LittleDiary' }} />
+      <LoginScreen />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

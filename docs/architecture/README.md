@@ -19,3 +19,9 @@ app.json、アイコン・スプラッシュ等の参照画像は保持する。
 - nativeはexpo-sqlite/localStorage、WebはブラウザlocalStorageを使う。SSRで共有クライアントを作成しない。SQLiteはセッション保管のみで日記保存ではない。
 - 新規Supabase LittleDiary（東京、Free、ユーザー承認済み）へ接続。Expo Hostingのproject IDとは別の識別子として扱う。
 - 詳細・制限・検証は[Foundation 2-1記録](../development/phases/foundation-02-01-supabase.md)。認証UI・DBスキーマ・同期機能は未実装。
+
+## Foundation 2-3A：クラウドAuthログイン準備
+
+Foundation 0/2-1時点の記述に対し、ユーザーの明示依頼でindexにメール・パスワードのログイン画面を追加した。Stack・routeパス・既存Supabase singletonとstorageは維持。画面はcomponents/login-screen、スタイルはstyles/login、状態はhooks/use-auth、Auth操作はlib/supabase/authに分離する。
+
+signInWithPassword、getSession、onAuthStateChange、scope=localのsignOutだけを使用。SSRではclientを初期化しない。セッション表示はDB認可の証明ではなく、今回テーブル・RLS・Auth設定・ユーザーは変更しない。実ログイン/iPhoneはテストアカウントの利用方法確認後に実施する。[工程記録・実機手順](../development/phases/foundation-02-03a-cloud-auth.md)。
