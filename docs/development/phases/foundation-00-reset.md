@@ -131,3 +131,22 @@ Foundation 1は上記実機確認・レビュー／マージ後、最新mainと�
 - https://docs.expo.dev/llms.txt
 - https://docs.expo.dev/router/basics/navigation-layouts/
 - https://reactnative.dev/docs/view
+
+## PR #6 マージ後処理・実機確認（2026-11-09）
+- PR: https://github.com/iwasaki-hub/LittleDiary/pull/6
+- ユーザー報告: iPhone Expo Go起動、最小プレースホルダー表示、クラッシュ・赤いエラー画面なしの3項目を「確認済み」と受領（報告受領日2026-11-09、実機テスト実施日時・機種・OSバージョンは未報告）。Codex自身の端末操作結果ではない。
+- 確認開始時点でPRは既にMERGED。こちらでマージ操作は再実行していない。
+- 最終head SHA: `7c4b017f9c2e11c80d17a4dd6e549c9936ff1c4a`。レビュー指定SHAと一致。
+- マージコミットSHA: `7deeefb2209bcc2df2e0687850eff32dd5d80eab`
+- GitHubマージ日時: 2026-11-09 01:29:28 JST（2026-11-08T16:29:28Z）。
+- 差分一覧を確認し、承認された初期化・退避・資料・検査設定の範囲と一致。GitHub表示はstatusCheckRollup=[]、保護APIはBranch not protected、適用ルールAPIは空配列。確認時には既にMergedのためマージ前競合状態は再現できず、UNKNOWNを競合なしの証拠とは扱わない。
+- リモートタグ `backup/pre-foundation-reset` はSHA `7462fd71ffa99f65c01626c2059473bfeed08bc7` で存在。
+- 開始時作業ツリーはクリーン。`git switch main` と `git pull --ff-only origin main` に成功。mainは上記マージSHAへ同期。
+- `git diff --exit-code chore/foundation-reset main` は終了コード0。作業ブランチは削除せず保持。
+- 同期後 `npx.cmd tsc --noEmit` 成功（終了コード0）、PowerShell `$env:CI='1'; npx.cmd expo lint` 成功（終了コード0）、`npx.cmd expo-doctor` は20/20成功（終了コード0）。PowerShellプロファイルのTerminal-Icons設定キャッシュへのアクセス警告は出たが、各検証コマンドは成功。アプリの不具合としては扱わず設定を変更していない。
+- 記録追記は専用 `docs/foundation-00-merge-record` ブランチと別ドキュメントPRで提出。mainへ直接Pushしない。
+- 以前の未確認チェック欄は当時の状態。上記3項目は今回のユーザー報告で確認済み、PR #6はMergedへ更新。Web実ブラウザ操作は引き続き未検証。
+- Foundation 1のデプロイは開始していない。次工程の具体的範囲・検証・対象外の合意を待つ。
+
+### 再利用できる後処理
+マージ要求時点で既にMergedなら二重操作せず、承認SHA・GitHub状態・マージSHAを照合して同期へ進む。実機報告の受領日と実施日を区別し、未報告の端末情報を補完しない。main同期後に同じ検証を再実行し、追記は別PRへ分離する。
