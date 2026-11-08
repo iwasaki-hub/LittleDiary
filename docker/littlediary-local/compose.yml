@@ -1,0 +1,19 @@
+# HTTP bind probe design only. NOT EXECUTED with Compose. Not a Supabase stack.
+name: littlediary-bind-probe-design
+services:
+  bind-probe:
+    # nginx:alpine digest obtained during the docker run experiment.
+    image: nginx@sha256:713fc2ebfd92e8217db451477182ee91944b123d2b1ee9fd5a8c6e91ca6c3a11
+    container_name: littlediary-bind-probe-compose
+    restart: "no"
+    ports:
+      - target: 80
+        published: "55329"
+        host_ip: 127.0.0.1
+        protocol: tcp
+    networks:
+      - local-probe
+networks:
+  local-probe:
+    external: true
+    name: littlediary-local-network
