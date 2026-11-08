@@ -1,0 +1,114 @@
+{
+  "repository": "https://github.com/supabase/supabase",
+  "tag": "self-hosted/v0.8.4",
+  "tagObject": "3f8e6c2e2bdca35bd6eacc8b7782aa73acb58ebc",
+  "commit": "189adda99d1b56da55fc5a6ee3f849354aaea92a",
+  "files": [
+    {
+      "source": "docker/volumes/api/envoy/cds.yaml",
+      "local": "upstream/api/envoy/cds.yaml",
+      "sha256": "9f2df9e1355cbeda3ecca809bffca9ed439bb18a66b82ca07caf97e27c34c291",
+      "gitBlob": "a2bb565ae8360ef1388e7ad072850e6bb09c1eed"
+    },
+    {
+      "source": "docker/volumes/api/envoy/docker-entrypoint.sh",
+      "local": "upstream/api/envoy/docker-entrypoint.sh",
+      "sha256": "8a0c9503764de32ba39e0d81e73629457b13ec42ef19897e30e4918c996d0508",
+      "gitBlob": "2c67584a30e151879e11b21939b9f1ed9857a38f"
+    },
+    {
+      "source": "docker/volumes/api/envoy/envoy.yaml",
+      "local": "upstream/api/envoy/envoy.yaml",
+      "sha256": "3697f23b0be9ec5b829f937c600eb9b878f1f778ab510b42ad5e4f14742447e9",
+      "gitBlob": "def443b68817921d98180b58d558006a2f86233f"
+    },
+    {
+      "source": "docker/volumes/api/envoy/lds.template.yaml",
+      "local": "upstream/api/envoy/lds.template.yaml",
+      "sha256": "51496623f48fe6178634fdd71efa72ec88ee46692a963cf8ec137ff667d9c52a",
+      "gitBlob": "d5648c8287e62cfaddce37cbeb17370020172a7b"
+    },
+    {
+      "source": "docker/volumes/db/_supabase.sql",
+      "local": "upstream/db/_supabase.sql",
+      "sha256": "9dce462adc04137d6afabcf28efa60a6c355270a4b32d7af58891ac4eb964c5f",
+      "gitBlob": "6236ae1bccc21f929362bb617947174ccd1519d3"
+    },
+    {
+      "source": "docker/volumes/db/init/data.sql",
+      "local": "upstream/db/init/data.sql",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "source": "docker/volumes/db/jwt.sql",
+      "local": "upstream/db/jwt.sql",
+      "sha256": "c1d3f5c01e44646c2e533c5a1c111821cc49cb5a4c2534e08cddad61d8fb0339",
+      "gitBlob": "09a728366624abe35e2a54cdda333a5c5d5f3ebe"
+    },
+    {
+      "source": "docker/volumes/db/logs.sql",
+      "local": "upstream/db/logs.sql",
+      "sha256": "f0463ce5030907acef49326d2bffd36002df0718035071be7c99bd7fc897c63d",
+      "gitBlob": "255c0f407b8d5b1c72b75c4daad0ca4fe3ff3eef"
+    },
+    {
+      "source": "docker/volumes/db/pooler.sql",
+      "local": "upstream/db/pooler.sql",
+      "sha256": "df97ebe148d94cfb92a5e37ebf972dfd496be195f0915ecf14396b2cf50efecb",
+      "gitBlob": "162c5b96aae50ab4c03b034a2d096898b1df4cd0"
+    },
+    {
+      "source": "docker/volumes/db/realtime.sql",
+      "local": "upstream/db/realtime.sql",
+      "sha256": "7e9e442e7fc4dae05544c07b67bede37a00d84644304dfce4d937134cb4c8f88",
+      "gitBlob": "4d4b9ffb912b9312dd78257956c180f12913264d"
+    },
+    {
+      "source": "docker/volumes/db/roles.sql",
+      "local": "upstream/db/roles.sql",
+      "sha256": "3ad717b225daa38aa982da26750f35641eb404e1eb5e69a763c22236ab96c1b2",
+      "gitBlob": "8f7161a6db66d75288722b60577ed30c81cc4f62"
+    },
+    {
+      "source": "docker/volumes/db/webhooks.sql",
+      "local": "upstream/db/webhooks.sql",
+      "sha256": "05a61316b899374253891cbba66ce073d9273f33983c3f47961eda3aa26c2823",
+      "gitBlob": "fe273decb89efc18c75e6f4a77953402c8f36555"
+    },
+    {
+      "source": "docker/volumes/functions/deno.jsonc",
+      "local": "upstream/functions/deno.jsonc",
+      "sha256": "a9a29da36c2576f755dd868b9f553a02afdf7d7bccf52e97e65c7f68cf36bfef",
+      "gitBlob": "db206e8f4672a6a07efdc38f487de0ecfd3dee52"
+    },
+    {
+      "source": "docker/volumes/functions/hello/index.ts",
+      "local": "upstream/functions/hello/index.ts.source",
+      "sha256": "03312683923382157d128dd2b0b2d2023d8daebd0d90add79ff977da6f423b1e",
+      "gitBlob": "50d0e6be8c46df9090503441a92f2fc4c522f93c",
+      "sourceSha256": "65e7d7ce5d898dd285e660cbab54521fca4bf990c41370f51fad5b4d4cae5f42",
+      "modification": "Trailing whitespace and extra final blank lines normalized only"
+    },
+    {
+      "source": "docker/volumes/functions/main/index.ts",
+      "local": "upstream/functions/main/index.ts.source",
+      "sha256": "0113b41cd5fc841d3e6560dcb9a9af8534b308448dffd9d102a618a35196d5bc",
+      "gitBlob": "e26686ce5a3a6cd8c28a1d324b2d3dc389783352",
+      "sourceSha256": "239b2dac871ec05baa2648196240ad3027ae0f6b5da71f4b45ff17df0f360fa2",
+      "modification": "Trailing whitespace and extra final blank lines normalized only"
+    },
+    {
+      "source": "docker/volumes/functions/main/memory-pressure.ts",
+      "local": "upstream/functions/main/memory-pressure.ts.source",
+      "sha256": "d4b193f43f81abc006a5aca1abc5a41f850800ad6b95370ddac39abef840c269",
+      "gitBlob": "ceb1149b731d55a68bdac194cbd6a51dd7e71f0a"
+    },
+    {
+      "source": "docker/volumes/pooler/pooler.exs",
+      "local": "upstream/pooler/pooler.exs",
+      "sha256": "d844e49f8915021ccbf6af6b769fef7909a723346bfc8f94ddb0433a328e49b1",
+      "gitBlob": "06f05e1b4acde4c34b25a136c6a701e651655a44"
+    }
+  ]
+}
