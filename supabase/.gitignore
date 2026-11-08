@@ -1,0 +1,4 @@
+# Local CLI state and credentials; migrations are tracked.
+.temp/
+.branches/
+.env*
